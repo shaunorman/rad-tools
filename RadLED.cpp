@@ -7,7 +7,7 @@ void LED_flash(int pin, int no_times, int on_ms, int off_ms) {
     // HIGH = LOW
     int _LOW = LOW;
     int _HIGH = HIGH;
-    if (pin == 2) {
+    if (pin == D4) {
         _LOW = HIGH;
         _HIGH = LOW;
     }
