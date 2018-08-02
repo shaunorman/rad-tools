@@ -4,4 +4,13 @@
 #include <RadConfig.h>
 #include <ESP8266WiFi.h>
 
-void setup_wifi(String device_id, RadConfig config);
+class RadWiFi {
+    public:
+        RadWiFi (RadConfig config);
+        void connect();
+        void loop();
+
+    private:
+        RadConfig _config;
+        unsigned long _wifi_last_check;
+};
