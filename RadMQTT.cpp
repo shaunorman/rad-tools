@@ -26,15 +26,30 @@ void RadMQTT::connect() {
             _config.log("[MQTT] Connected");
             // Connected! 3 success flashes
             delay(1000);
-            LED_flash(D4, 3, 500, 500);
+            _config.led.flash(3, 500, 500);
             delay(1000);
         }
         else {
             _config.log("[MQTT] Failed, rc=" + String(client->state()));
-            LED_flash(D4, 10, 100, 100);
+            _config.led.flash(10, 100, 100);
             delay(5000);
         }
     }
+}
+
+bool RadMQTT::publish(const char* topic, const char* payload) {
+    _config.log("[MQTT] " + String(topic) + ": " + String(payload));
+    bool result = client->publish(topic, payload);
+
+    if (false == result) {
+        _config.log("[MQTT] failure to send");
+        _config.led.flash(10, 100, 100);
+    }
+    else {
+        _config.led.flash(1, 50, 50);
+    }
+
+    return result;
 }
 
 /**

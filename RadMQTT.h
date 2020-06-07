@@ -9,6 +9,7 @@ class RadMQTT {
         RadMQTT (RadConfig config);
         void connect();
         void loop();
+        bool publish(const char* topic, const char* payload);
 
         PubSubClient *client;
     private:
