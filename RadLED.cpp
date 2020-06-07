@@ -1,20 +1,53 @@
 #include <Arduino.h>
 #include <RadLED.h>
 
-void LED_flash(int pin, int no_times, int on_ms, int off_ms) {
-    // When using the internal LED, the LOW and HIGH are around the wrong way. So:
-    // LOW = HIGH
-    // HIGH = LOW
-    int _LOW = LOW;
-    int _HIGH = HIGH;
-    if (pin == D4) {
-        _LOW = HIGH;
-        _HIGH = LOW;
+
+RadLED::RadLED(int pin) {
+    _pin = pin;
+    _init();
+}
+
+RadLED::RadLED() {
+    _pin = _internal_pin;
+    _init();
+}
+
+
+void RadLED::_init() {
+    pinMode(_pin, OUTPUT);
+
+    // The internal LED on my devices is the opposite, HIGH for off, LOW for on
+    if (_pin == _internal_pin) {
+        _high = LOW;
+        _low = HIGH;
     }
+    else {
+        _high = HIGH;
+        _low = LOW;
+    }
+
+    digitalWrite(_pin, _low);
+}
+
+
+void RadLED::on() {
+    digitalWrite(_pin, _high);
+}
+
+
+void RadLED::off() {
+    digitalWrite(_pin, _low);
+}
+
+
+void RadLED::flash(int no_times, int on_ms, int off_ms) {
     for (int count=0; count < no_times; count++) {
-        digitalWrite(pin, LOW);
+        on();
         delay(on_ms);
-        digitalWrite(pin, HIGH);
-        delay(off_ms);
+        off();
+        // No point locking up the system to wait for it to be off.
+        if (count < no_times - 1) {
+            delay(off_ms);
+        }
     }
 }
