@@ -23,32 +23,31 @@ void RadWiFi::connect() {
     _config.log("[WIFI] Connecting to " + String(_config.wifi_ssid));
     WiFi.begin(_config.wifi_ssid, _config.wifi_password);
 
-    bool on = false;
+    int counter = 0;
     while (WiFi.status() != WL_CONNECTED) {
-        Serial.print(".");
-        // Flash the internal LED while its connecting.
-        if (on) {
-            digitalWrite(D4, LOW);
-            on = false;
-        }
-        else {
-            digitalWrite(D4, HIGH);
-            on = true;
+        // It's tried too many times, restart the machine
+        // This is used because for some reason some of my devices will just loose wifi connectivity and never connect
+        // again
+        if (counter > _config.restart_after_failed_wifi_attempts) {
+            Serial.println("[WIFI] Restarting");
+            ESP.restart();
         }
 
-        delay(100);
+        Serial.print(".");
+
+        // Flash the internal LED while its connecting.
+        _config.led.flash(1, 100, 100);
+        counter++;
     }
 
-    _config.log("\n[WIFI] Connected!");
+    _config.log("\n[WIFI] Connected!!");
 
-    _config.log("[WIFI] IP Address: " + WiFi.localIP());
-
-    // Turn the led off
-    digitalWrite(D4, HIGH);
+    IPAddress ip = WiFi.localIP();
+    _config.log("[WIFI] IP Address: " + String(ip[0]) + "." + String(ip[1]) + "." + String(ip[2]) + "." + String(ip[3]));
 
     // Connected! 2 success flashes
     delay(1000);
-    LED_flash(D4, 2, 500, 500);
+    _config.led.flash(2, 500, 500);
     delay(1000);
 
     _wifi_last_check = millis();
