@@ -21,6 +21,8 @@ void RadMQTT::connect() {
     }
 
     _config.log("[MQTT] Attempting MQTT connection...");
+
+    int counter = 0;
     while (!client->connected()) {
         if (client->connect(_config.device_id.c_str())) {
             _config.log("[MQTT] Connected");
@@ -30,10 +32,18 @@ void RadMQTT::connect() {
             delay(1000);
         }
         else {
+            client->disconnect();
             _config.log("[MQTT] Failed, rc=" + String(client->state()));
             _config.led.flash(10, 100, 100);
             delay(5000);
         }
+
+        if (counter >= _config.restart_after_failed_mqtt_attempts) {
+            _config.log("[MQTT] Restarting");
+            ESP.restart();
+        }
+
+        counter++;
     }
 }
 
